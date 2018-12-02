@@ -34,16 +34,51 @@ https://azure.microsoft.com/zh-cn/overview/what-is-a-virtual-machine/
 * 一些用户会下载 deb 包进行手动安装和升级，这在系统无法联网的情况下非常有用。
 * 在测试和开发环境中，一些用户使用自动化的脚本进行安装。
 
-以上几种方式在下面给出的链接中都有详细描述，这里记录一种简便的方式进行安装：\
+以上几种方式在下面给出的链接中都有详细描述，这里记录一种简便的方式进行安装(前提网络正常)：\
 通过`wget -qO- https://get.docker.com/ | sh`命令可以直接进行安装。\
 设置开机启动：\
 `sudo systemctl enable docker`\
 `sudo systemctl start docker`\
 测试 docker 是否正确安装：\
-`docker run hello-world`
-## Docker 常用命令
-`docker ps`:
-
+`docker run hello-world`，这句命令会从 https://hub.docker.com/ 拉取一个叫`hello-world`的 docker 镜像到本地（如果本地没有），并启动这个镜像，如果成功启动表示 docker 安装成功。
 
 references:\
 https://docs.docker.com/install/linux/docker-ce/ubuntu/
+
+## 拉取镜像并使用
+1. `docker pull ubuntu:latest`: 从 hub.docker.com 上拉取`ubuntu`最新版本镜像;
+2. `docker image ls`: 显示镜像列表;
+3. `docker run -ti unbuntu:latest /bin/bash`: 运行`ubuntu`进行镜像并进入该容器中（加上`-d`参数则不会进入容器而是后台运行）;
+4. `docker attach`: 进入一个正在运行的容器中，如 `docker attach 8aae6257d7c0`, 后面的一串字符是该容器的`id`（`CONTAINER ID`），或者换成容器的名称（`NAMES`）也能进入。
+5. `CTRL+P+Q`: 退出容器,容器仍然运行; `CTRL+D`: 退出并关闭容器，未保存的操作将被抛弃。
+
+references:\
+https://www.youtube.com/watch?v=UV3cw4QLJLs 视频教程
+
+## Dockerfile
+#### 什么是 Dockerfile?
+`Dockerfile`定义了容器的环境里所有的动作（即容器要如何运作）。对网络接口和磁盘驱动的访问需要在容器中进行虚拟化，因此需要将容器中的端口映射到外部实际的端口，并且具体说明要复制外部的那些文件到容器中环境。
+#### 创建一个 Dockerfile
+创建一个空文件夹并进入（cd）该文件夹，创建一个叫 Dockerfile 的文件。
+// TODO
+
+
+
+## Docker 常用命令
+````
+docker image ls: 显示安装的镜像 （加上`--all`会显示所有的镜像，默认隐藏一些中间镜像）
+docker container: 管理容器
+docker search: 搜索 docker 镜像，如搜索 redis： `docker search redis`
+docker pull: 下载镜像，如下载 redis：`docker pull redis:latest`,":"表示标签（TAG）
+docker ps: 显示正在运行的容器
+docker run: 运行镜像，如 docker run -ti ubuntu:latest
+docker start: 运行容器，如 docker start 8aae6257d7c0
+docker stop: 关闭容器，如 docker stop 8aae6257d7c0
+````
+`docker run` \
+加上`-v`参数可以将容器内的文件路径挂载到宿主机器（容器外）的文件路径上， 如 `docker run -ti -v /home/data:/data ubuntu /bin/bash`会将`ubuntu`容器中的`/data`目录挂载到宿主机的`/home/data`上;
+加上`-p`参数将容器外的端口映射到容器内，如`docker run -ti -p 192.168.7.254:3306:3306 ubuntu /bin/bash`。
+
+
+references：\
+https://docs.docker.com/engine/reference/commandline/cli/ 官方详细指令文档
