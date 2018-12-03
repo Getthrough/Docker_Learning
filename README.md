@@ -69,12 +69,12 @@ from hub.c.163.com/library/tomcat
 # 镜像作者信息
 MAINTAINER getthrough maoxianbin1994@gmail.com
 
-# 将容器外的文件复制到容器内的制定位置
+# 将容器外的文件复制到容器内的指定位置
 COPY forFirstDockerfile.war /usr/local/tomcat/webapps
 ````
 #### 构建一个镜像
 根据上述 Dockerfile 文件构建一个镜像：`docker build -t my_docker_image:1.0 .`\
-`-t`参数表示镜像的`tag`，冒号前面指定的是这个镜像的名称。\
+`-t`参数表示镜像的`tag`，冒号前面指定的是这个镜像的名称，最后的“.”表示当前目录。\
 此时我们`docker images`一下：
 ````
 root@tamen:/home/getthrough/TechLearning/docker/firstDockerfile# docker images
@@ -104,9 +104,11 @@ CONTAINER ID        IMAGE                 COMMAND             CREATED           
 在推送到仓库之前最好给镜像打一个`tag`，这个`tag`的内容能体现这个版本的镜像的特点或者让你知道这个镜像适用于什么场合，此外`tag`中还可以包含需要推送的远程仓库的地址，如下：
 ````
 * 如果推送到 hub.docker.com（国内网络推送和拉取比较慢）
-首先需要先去该站点注册一个用户，然后使用 docker login 进行登录，登录后进行推送：docker push getthrough/my_docker_image
+首先需要先去该站点注册一个用户，然后使用 docker login 进行登录，
+登录后进行推送：docker push getthrough/my_docker_image
 * 如果推送到其他仓库（例 网易云镜像仓库）
-同样，先去 https://www.163yun.com/product/repo 注册一个用户，使用 docker login -u username -p password hub.c.163.com 进行登录
+同样，先去 https://www.163yun.com/product/repo 注册一个用户，
+使用 docker login -u username -p password hub.c.163.com 进行登录，
 然后为镜像打一个 tag，如：docker tag 8aae6257d7c0 hub.c.163.com/getthrough/first-try
 最后进行推送 docker push hub.c.163.com/getthrough/first-try
 ````
@@ -138,7 +140,7 @@ docker start: 运行容器，如 docker start 8aae6257d7c0
 docker stop: 关闭容器，如 docker stop 8aae6257d7c0
 ````
 `docker run` \
-加上`-v`参数可以将容器内的文件路径挂载到宿主机器（容器外）的文件路径上， 如 `docker run -ti -v /home/data:/data ubuntu /bin/bash`会将`ubuntu`容器中的`/data`目录挂载到宿主机的`/home/data`上;
+加上`-v`参数可以将容器内的文件路径挂载到宿主机器（容器外）的文件路径上， 如 `docker run -ti -v /home/data:/data ubuntu /bin/bash`会将`ubuntu`容器中的`/data`目录挂载到宿主机的`/home/data`上;\
 加上`-p`参数将容器外的端口映射到容器内，如`docker run -ti -p 192.168.7.254:3306:3306 ubuntu /bin/bash`。
 
 
