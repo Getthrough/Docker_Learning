@@ -26,7 +26,7 @@ https://azure.microsoft.com/zh-cn/overview/what-is-a-virtual-machine/
 * Trusty 14.04 (LTS)
 
 #### 卸载 Docker 旧版本
-`$ sudo apt-get remove docker docker-engine docker.io`\
+`sudo apt-get remove docker docker-engine docker.io`,\
 `/var/lib/docker`目录下的内容，包括 images, containers, volumes, and networks 将会被保留。
 #### 安装 Docker CE（社区版）
 安装 Docker 社区版有几种不同的方式：
@@ -35,7 +35,8 @@ https://azure.microsoft.com/zh-cn/overview/what-is-a-virtual-machine/
 * 在测试和开发环境中，一些用户使用自动化的脚本进行安装。
 
 以上几种方式在下面给出的链接中都有详细描述，这里记录一种简便的方式进行安装(前提网络正常)：\
-通过`wget -qO- https://get.docker.com/ | sh`命令可以直接进行安装。\
+通过`wget -qO- https://get.docker.com/ | sh`\
+或者`curl -sSL https://get.docker.com/ | sh`命令可以直接进行安装,\
 设置开机启动：\
 `sudo systemctl enable docker`\
 `sudo systemctl start docker`\
@@ -90,7 +91,7 @@ CONTAINER ID        IMAGE                 COMMAND             CREATED           
 ````
 访问“forFirstDockerfile”应用：\
 `http://localhost:8080/forFirstDockerfile/index.jsp`或者\
-`curl http://localhost:8080/forFirstDockerfile/index.jsp`可以收到返回数据如下：\
+`curl http://localhost:8080/forFirstDockerfile/index.jsp`可以收到返回数据如下:
 ````
 <html>
 <body>
