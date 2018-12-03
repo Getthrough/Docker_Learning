@@ -5,7 +5,7 @@ record of learning docker
 Docker 是一个开源项目，它可以将应用程序自动部署在可移植的，独立的容器中。Docker 利用 Linux 内核中的资源分离机制，如 Cgroups 和 namespace 来创建独立的容器（container）。在此之前，部署一个独立的环境通常我们的做法是启动一个虚拟机（virtual machine），建立一个完全独立的操作系统，再进行应用程序的部署。
 
 references:\
-https://zh.wikipedia.org/wiki/Docker\
+https://zh.wikipedia.org/wiki/Docker \
 https://docs.microsoft.com/en-us/dotnet/standard/microservices-architecture/container-docker-introduction/docker-defined
 
 ## Comparing Docker containers with virtual machines
