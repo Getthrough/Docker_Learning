@@ -59,10 +59,12 @@ https://www.youtube.com/watch?v=UV3cw4QLJLs 视频教程
 #### 什么是 Dockerfile?
 `Dockerfile`定义了容器的环境里所有的动作（即容器要如何运作）。对网络接口和磁盘驱动的访问需要在容器中进行虚拟化，因此需要将容器中的端口映射到外部实际的端口，并且具体说明要复制外部的那些文件到容器中环境。
 #### 创建一个 Dockerfile
-创建一个空文件夹并进入（cd）该文件夹，创建一个叫 Dockerfile 的文件。
-// TODO
+创建一个空文件夹并进入（cd）该文件夹，创建一个叫 Dockerfile 的文件。\
+以下 Dockerfile 内容可以用于制作一个简单的镜像：
+````
 
 
+````
 
 ## Docker 常用命令
 ````
