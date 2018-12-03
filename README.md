@@ -62,9 +62,68 @@ https://www.youtube.com/watch?v=UV3cw4QLJLs 视频教程
 创建一个空文件夹并进入（cd）该文件夹，创建一个叫 Dockerfile 的文件。\
 以下 Dockerfile 内容可以用于制作一个简单的镜像：
 ````
+# 使用 tomcat 基础镜像(镜像名称可用 docker images 命令查看)
+from hub.c.163.com/library/tomcat
+2. 构建镜像
+# 镜像作者信息
+MAINTAINER getthrough maoxianbin1994@gmail.com
 
-
+# 将容器外的文件复制到容器内的制定位置
+COPY forFirstDockerfile.war /usr/local/tomcat/webapps
 ````
+#### 构建一个镜像
+根据上述 Dockerfile 文件构建一个镜像：`docker build -t my_docker_image:1.0 .`\
+`-t`参数表示镜像的`tag`，冒号前面指定的是这个镜像的名称。\
+此时我们`docker images`一下：
+````
+root@tamen:/home/getthrough/TechLearning/docker/firstDockerfile# docker images
+REPOSITORY                     TAG                 IMAGE ID            CREATED             SIZE
+my_docker_image                1.0                 af62d5887b0e        11 seconds ago      292MB
+````
+可以看到，`my_docker_image`镜像已经构建成功。
+#### 运行镜像
+`docker run -ti -d -p 8080:8080 my_docker_image:1.0`。`-p`参数指定将主机的端口映射到容器内的端口\
+`docker ps`查看运行的容器：
+````
+CONTAINER ID        IMAGE                 COMMAND             CREATED             STATUS              PORTS                    NAMES
+2e487668ba6f        my_docker_image:1.0   "catalina.sh run"   8 seconds ago       Up 5 seconds        0.0.0.0:8080->8080/tcp   tender_colden
+````
+访问“forFirstDockerfile”应用：\
+`http://localhost:8080/forFirstDockerfile/index.jsp`或者\
+`curl http://localhost:8080/forFirstDockerfile/index.jsp`可以收到返回数据如下：\
+````
+<html>
+<body>
+<h2>Hello World!</h2>
+<p>This is getthrough's first web app running in docker!</p>
+</body>
+</html>
+````
+## 将镜像推送到远程仓库
+在推送到仓库之前最好给镜像打一个`tag`，这个`tag`的内容能体现这个版本的镜像的特点或者让你知道这个镜像适用于什么场合，此外`tag`中还可以包含需要推送的远程仓库的地址，如下：
+````
+* 如果推送到 hub.docker.com（国内网络推送和拉取比较慢）
+首先需要先去该站点注册一个用户，然后使用 docker login 进行登录，登录后进行推送：docker push getthrough/my_docker_image
+* 如果推送到其他仓库（例 网易云镜像仓库）
+同样，先去 https://www.163yun.com/product/repo 注册一个用户，使用 docker login -u username -p password hub.c.163.com 进行登录
+然后为镜像打一个 tag，如：docker tag 8aae6257d7c0 hub.c.163.com/getthrough/first-try
+最后进行推送 docker push hub.c.163.com/getthrough/first-try
+````
+references:\
+https://www.163yun.com/help/documents/15587826830438400 推送到网易云镜像仓库
+## 设置默认镜像仓库
+默认拉取镜像的的地址是`hub.docker.com`,切换默认仓库的方式有以下几种：
+1. `docker pull registry.docker-cn.com/library/ubuntu`, 在拉取时指定仓库位置
+2. 在`/etc/docker/daemon.json`文件中指定镜像仓库：
+````
+{
+  "registry-mirrors": ["https://registry.docker-cn.com"]
+}
+````
+网易云镜像仓库地址为：`http://hub-mirror.c.163.com`
+
+references:\
+https://docs.docker.com/registry/recipes/mirror/#use-case-the-china-registry-mirror
 
 ## Docker 常用命令
 ````
