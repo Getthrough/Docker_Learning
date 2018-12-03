@@ -65,7 +65,7 @@ https://www.youtube.com/watch?v=UV3cw4QLJLs 视频教程
 ````
 # 使用 tomcat 基础镜像(镜像名称可用 docker images 命令查看)
 from hub.c.163.com/library/tomcat
-2. 构建镜像
+
 # 镜像作者信息
 MAINTAINER getthrough maoxianbin1994@gmail.com
 
