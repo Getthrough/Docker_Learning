@@ -130,7 +130,7 @@ https://docs.docker.com/registry/recipes/mirror/#use-case-the-china-registry-mir
 
 ## Docker 常用命令
 ````
-docker image ls: 显示安装的镜像 （加上`--all`会显示所有的镜像，默认隐藏一些中间镜像）
+docker image ls/docker images: 显示安装的镜像 （加上`--all`会显示所有的镜像，默认隐藏一些中间镜像）
 docker container: 管理容器
 docker search: 搜索 docker 镜像，如搜索 redis： `docker search redis`
 docker pull: 下载镜像，如下载 redis：`docker pull redis:latest`,":"表示标签（TAG）
