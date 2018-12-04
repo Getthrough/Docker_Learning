@@ -100,6 +100,21 @@ CONTAINER ID        IMAGE                 COMMAND             CREATED           
 </body>
 </html>
 ````
+下面关于 Dockerfile 的几个命令引用自阮一峰的博客 http://www.ruanyifeng.com/blog/2018/02/docker-tutorial.html
+````
+# 该 image 文件继承官方的 node image，冒号表示标签，这里标签是8.4，即8.4版本的 node
+FROM node:8.4
+# 将当前目录下的所有文件（除了.dockerignore排除的路径），都拷贝进入 image 文件的/app目录
+COPY . /app
+# 指定接下来的工作路径为/app
+WORKDIR /app
+# 在/app目录下，运行npm install命令安装依赖。注意，安装后所有的依赖，都将打包进入 image 文件
+RUN npm install --registry=https://registry.npm.taobao.org
+# 将容器 3000 端口暴露出来， 允许外部连接这个端口
+EXPOSE 3000
+# CMD 命令表示容器启动后自动执行的语句
+CMD node demos/01.js
+````
 ## 将镜像推送到远程仓库
 在推送到仓库之前最好给镜像打一个`tag`，这个`tag`的内容能体现这个版本的镜像的特点或者让你知道这个镜像适用于什么场合，此外`tag`中还可以包含需要推送的远程仓库的地址，如下：
 ````
@@ -127,6 +142,7 @@ https://www.163yun.com/help/documents/15587826830438400 推送到网易云镜像
 
 references:\
 https://docs.docker.com/registry/recipes/mirror/#use-case-the-china-registry-mirror
+## Docker Compose
 
 ## Docker 常用命令
 ````
@@ -139,11 +155,15 @@ docker run: 运行镜像，如 docker run -ti ubuntu:latest
 docker start: 运行容器，如 docker start 8aae6257d7c0
 docker stop: 关闭容器，如 docker stop 8aae6257d7c0
 docker image rm: 删除镜像，如 docker image rm ngnix 或者 docker image rm 62f816a209e6（容器ID）
+docker container inspect: 查询某个容器详细的配置信息，如 docker container inspect ubuntu（先使用 docker container ls -l 列出容器）
 ````
 `docker run` \
-加上`-v`参数可以将容器内的文件路径挂载到宿主机器（容器外）的文件路径上， 如 `docker run -ti -v /home/data:/data ubuntu /bin/bash`会将`ubuntu`容器中的`/data`目录挂载到宿主机的`/home/data`上;\
-加上`-p`参数将容器外的端口映射到容器内，如`docker run -ti -p 192.168.7.254:3306:3306 ubuntu /bin/bash`。
-
+加上`-v`或者`--volume`参数可以将容器内的文件路径映射到宿主机器（容器外）的文件路径上， 如 `docker run -ti -v /home/data:/data ubuntu /bin/bash`会将`ubuntu`容器中的`/data`目录挂载到宿主机的`/home/data`上;\
+加上`-p`参数将容器外的端口映射到容器内，如`docker run -ti -p 192.168.7.254:3306:3306 ubuntu /bin/bash`。\
+加上`--rm`参数可以在容器停止的时候删除容器文件。容器文件：启动一个镜像会产生相应的一个文件。\
+加上`--link`参数表示将当前容器连接到某个容器，如`--link mysqldb:mysql`,":"表示别名。
+---
+`docker run`与`docker start`的区别：`run`命令表示启动一个镜像，每一次启动镜像都会生成一个镜像文件，而`start`命令表示启动一个已经存在的镜像文件。
 
 references：\
 https://docs.docker.com/engine/reference/commandline/cli/ 官方详细指令文档
