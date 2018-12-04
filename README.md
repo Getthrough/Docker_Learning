@@ -162,7 +162,7 @@ docker container inspect: 查询某个容器详细的配置信息，如 docker c
 加上`-p`参数将容器外的端口映射到容器内，如`docker run -ti -p 192.168.7.254:3306:3306 ubuntu /bin/bash`。\
 加上`--rm`参数可以在容器停止的时候删除容器文件。容器文件：启动一个镜像会产生相应的一个文件。\
 加上`--link`参数表示将当前容器连接到某个容器，如`--link mysqldb:mysql`,":"表示别名。
----
+
 `docker run`与`docker start`的区别：`run`命令表示启动一个镜像，每一次启动镜像都会生成一个镜像文件，而`start`命令表示启动一个已经存在的镜像文件。
 
 references：\
