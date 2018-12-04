@@ -138,6 +138,7 @@ docker ps: 显示正在运行的容器
 docker run: 运行镜像，如 docker run -ti ubuntu:latest
 docker start: 运行容器，如 docker start 8aae6257d7c0
 docker stop: 关闭容器，如 docker stop 8aae6257d7c0
+docker image rm: 删除镜像，如 docker image rm ngnix 或者 docker image rm 62f816a209e6（容器ID）
 ````
 `docker run` \
 加上`-v`参数可以将容器内的文件路径挂载到宿主机器（容器外）的文件路径上， 如 `docker run -ti -v /home/data:/data ubuntu /bin/bash`会将`ubuntu`容器中的`/data`目录挂载到宿主机的`/home/data`上;\
