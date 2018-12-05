@@ -258,7 +258,7 @@ redis 服务：
     Hello World! I have been seen 1 times.
     ````
 3. 刷新页面，次数变成 2 次。
-4. 打开另一个终端，使用`docker image ls`命令，会发现镜像列表会包含`redis`和`web`
+4. 打开另一个终端，使用`docker image ls`命令，会发现镜像列表会包含`redis`和`composetest_web`
 5. 可以在刚打开的另一个终端里执行`docker-compose down`关闭应用，或者在应用启动的终端按`CTRL+C`
 ##### 一些其他命令
 * `docker-compose up -d`后台运行程序
