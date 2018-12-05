@@ -148,7 +148,8 @@ references:\
 https://docs.docker.com/registry/recipes/mirror/#use-case-the-china-registry-mirror
 ## Docker Compose
 #### 什么是 Docker-Compose？
-
+Docker-Compose 是 Docker 官方提供的一个工具软件，用于将多个容器组成一个应用。想象一下，启动一个 Java 应用可能需要同步启动 JVM，MYSQL，MQ，REDIS，ES 等一大堆容器，也是比较繁琐的。
+使用 Docker-Compose 在`docker-compose.yml`文件中定义好各个服务以及服务间的连接方式，就能一行命令启动了。
 #### 安装 Docker-Compose
 安装了 docker 的 Mac 和 Windows 系统无需另外安装 Docker-Compose;\
 Linux 下安装 Docker-Compose 步骤如下：
