@@ -143,6 +143,129 @@ https://www.163yun.com/help/documents/15587826830438400 推送到网易云镜像
 references:\
 https://docs.docker.com/registry/recipes/mirror/#use-case-the-china-registry-mirror
 ## Docker Compose
+#### 什么是 Docker-Compose？
+
+#### 安装 Docker-Compose
+安装了 docker 的 Mac 和 Windows 系统无需另外安装 Docker-Compose;\
+Linux 下安装 Docker-Compose 步骤如下：
+1. 下载最新版本：`sudo curl -L "https://github.com/docker/compose/releases/download/1.23.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose`
+2. 添加可执行权限：`sudo chmod +x /usr/local/bin/docker-compose`
+3. （可选）安装命令行补全工具：
+* Bash 命令补全：\
+在 `/etc/bash_completion.d/`（或者 `/usr/local/etc/bash_completion.d/` on a Mac）执行如下命令：
+````
+sudo curl -L https://raw.githubusercontent.com/docker/compose/1.23.1/contrib/completion/bash/docker-compose -o /etc/bash_completion.d/docker-compose
+````
+Mac 上还有几步省略，具体步骤见引用地址。
+
+#### 使用 Docker-Compose
+以下示例会使用 Docker-Compose 构建一个简单的 Python web 应用。
+##### 步骤1 设置
+1) 为此项目创建一个目录：
+````
+mkdir composetest
+cd composetest
+````
+2) 创建 app.py 文件，该文件内容如下：
+````
+import time
+
+import redis
+from flask import Flask
+
+
+app = Flask(__name__)
+cache = redis.Redis(host='redis', port=6379)
+
+
+def get_hit_count():
+    retries = 5
+    while True:
+        try:
+            return cache.incr('hits')
+        except redis.exceptions.ConnectionError as exc:
+            if retries == 0:
+                raise exc
+            retries -= 1
+            time.sleep(0.5)
+
+
+@app.route('/')
+def hello():
+    count = get_hit_count()
+    return 'Hello World! I have been seen {} times.\n'.format(count)
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", debug=True)
+````
+3) 创建 requirements.txt 文件，内容如下：
+````
+flask
+redis
+````
+##### 步骤2 创建 Dockerfile
+这一步会创建一个用于构建镜像的 Dockerfile 文件，构建好的镜像会包含所有这个 Python 应用所有的依赖。\
+在项目根目录（composetest 目录）下，创建 Dockerfile 文件，包含如下内容：
+````
+FROM python:3.4-alpine
+ADD . /code
+WORKDIR /code
+RUN pip install -r requirements.txt
+CMD ["python", "app.py"]
+````
+上述内容告诉 docker 做如下动作:
+````
+* 构建一个基于 python 3.4 的镜像
+* 添加当前目录到镜像中的 /code 目录
+* 设置工作目录为 /code
+* 安装 python 依赖
+* 设置容器启动后运行的命令 python app.py
+````
+##### 步骤3 在 Compose 文件中定义一些服务
+在项目根目录下创建 docker-compose.yml 文件，其内容包括：
+````
+version: '3'
+services:
+  web:
+    build: .
+    ports:
+     - "5000:5000"
+    volumes:
+     - .:/code
+  redis:
+    image: "redis:alpine"
+````
+上述 docker-compose.yml 文件定义了 web 和 redis 两个服务。\
+web 服务：
+````
+* 使用当前目录下的 Dockerfile 构建镜像
+* 将容器内的 5000 端口映射到主机上的 5000 端口
+* 将容器内的 /code 目录映射到主机当前目录，此时在主机上对当前目录下文件的操作也会同步到容器内
+````
+redis 服务：
+````
+* 使用从远程仓库拉取的 redis 镜像
+````
+##### 步骤4 使用 Compose 构建和运行项目
+1. 在项目根目录下启动命令：`docker-compose up`
+2. 在浏览器中访问`http://localhost:5000/`，启动成功后页面会展示如下内容：
+    ````
+    Hello World! I have been seen 1 times.
+    ````
+3. 刷新页面，次数变成 2 次。
+4. 打开另一个终端，使用`docker image ls`命令，会发现镜像列表会包含`redis`和`web`
+5. 可以在刚打开的另一个终端里执行`docker-compose down`关闭应用，或者在应用启动的终端按`CTRL+C`
+##### 一些其他命令
+* `docker-compose up -d`后台运行程序
+* `docker-compose run`可以运行一次性的命令，类似本次运行指定某个环境变量等，\
+比如`docker-compose run web env`可以查看 web 服务有哪些环境变量
+* 如果是以后台方式启动的容器，可以使用`docker-compose stop`进行关闭，\
+如果使用`docker-compose down`则会关闭所有，并且将删除容器文件。
+ 
+
+
+references：\
+https://docs.docker.com/compose/completion/#install-command-completion
 
 ## Docker 常用命令
 ````
