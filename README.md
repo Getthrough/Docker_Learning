@@ -216,6 +216,31 @@ https://docs.docker.com/install/linux/docker-ce/ubuntu/
 references:\
 https://www.youtube.com/watch?v=UV3cw4QLJLs 视频教程
 
+## 保存镜像和加载镜像
+在没有联网的环境下无法从外网环境拉取镜像,可以通过提前将镜像保存后再进行加载的方式使用.
+### 保存镜像文件
+查看已有的 docker 镜像:
+````
+[getthrough2@localhost ~]$ docker images
+REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+hello-world         latest              fce289e99eb9        2 weeks ago         1.84kB
+````
+有一个 hello-world 镜像,将其保存:
+````
+// 指定镜像既可以使用镜像名称也可以指定镜像id
+[getthrough2@localhost ~]$ docker save -o hello-world.tar hello-world
+[getthrough2@localhost ~]$ ls
+hello-world.tar
+````
+### 加载镜像文件
+在`/usr/getthrough2`目录下有镜像文件`hello-world.tar`:
+````
+[getthrough2@localhost ~]$ docker load -i hello-world.tar
+Loaded image: hello-world:latest
+[getthrough2@localhost ~]$ docker images
+REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+hello-world         latest              fce289e99eb9        2 weeks ago         1.84kB
+````
 ## Dockerfile
 #### 什么是 Dockerfile?
 `Dockerfile`定义了容器的环境里所有的动作（即容器要如何运作）。对网络接口和磁盘驱动的访问需要在容器中进行虚拟化，因此需要将容器中的端口映射到外部实际的端口，并且具体说明要复制外部的那些文件到容器中环境。
