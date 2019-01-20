@@ -23,7 +23,163 @@ https://docs.microsoft.com/en-us/dotnet/standard/microservices-architecture/cont
 references:\
 https://azure.microsoft.com/zh-cn/overview/what-is-a-virtual-machine/
 
-## Install Docker in Ubuntu
+## Install Docker for CentOS
+需要注意: CentOS 7 之前的 docker 版本不再提供维护和测试.
+#### 卸载 Docker 旧版本
+````
+sudo yum remove docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-engine
+````
+### 卸载新版本 docker-ce
+1. 卸载 docker ce 包
+````
+sudo yum remove docker-ce
+````
+2. 删除所有镜像,容器,和卷(volumes)
+````
+sudo rm -rf /var/lib/docker
+````
+在测试卸载docker时,发现只执行上述两个命令,重新安装会提示文件冲突,再删除`docker-ce-cli`后才能正常安装:
+````
+sudo yum remove docker-ce-cli
+````
+#### 在 CentOS 上安装 Docker CE 的几种方式
+* 通过设置 Docker 仓库并从仓库安装(推荐的方式) (1)
+* 在没有联网的情况下,可以通过下载 RPM 包进行手动安装 (2)
+* 在测试和开发的环境中,可以选择自动话的脚本进行安装 Docker (3)
+
+##### 方式1 设置 docker 仓库进行安装
+###### 安装最新的 Docker CE 版本
+1. 安装必须的包
+````
+sudo yum install -y yum-utils device-mapper-persistent-data lvm2
+````
+2. 设置稳定的仓库(stable repository)
+````
+sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+````
+3. (可选) 让 edge 和 test 仓库可用(默认不可用)
+````
+sudo yum-config-manager --enable docker-ce-edge
+sudo yum-config-manager --enable docker-ce-test
+````
+4. 安装 Docker CE
+````
+sudo yum install docker-ce
+````
+###### 安装指定的 Docker CE 版本
+1. 列出在你的仓库中可用的 docker 版本, 下面的排序方式是从高版本到低版本:
+````
+yum list docker-ce --showduplicates | sort -r
+// 输出
+docker-ce.x86_64            3:18.09.1-3.el7                     docker-ce-stable
+docker-ce.x86_64            3:18.09.0-3.el7                     docker-ce-stable
+docker-ce.x86_64            18.06.1.ce-3.el7                    docker-ce-stable
+docker-ce.x86_64            18.06.0.ce-3.el7                    docker-ce-stable
+...
+````
+2. 安装指定版本
+````
+// 例如安装排序输出的第一个版本
+sudo yum install docker-ce-3:18.09.1-3.el7
+````
+至此 Docker 安装已经完成,但是并没有运行.名为 docker 的用户组已经创建.
+###### 启动 Docker
+在启动前执行`docker ps`命令:
+````
+[root@localhost ~]# docker ps
+Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running?
+````
+使用如下命令启动:
+````
+sudo systemctl start docker
+````
+再执行 `docker ps`
+````
+[root@localhost ~]# docker ps
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS 
+````
+验证 docker 是否正确安装:
+````
+root@localhost ~]# sudo docker run hello-world
+Unable to find image 'hello-world:latest' locally
+latest: Pulling from library/hello-world
+1b930d010525: Pull complete 
+Digest: sha256:2557e3c07ed1e38f26e389462d03ed943586f744621577a99efb77324b0fe535
+Status: Downloaded newer image for hello-world:latest
+
+Hello from Docker!
+This message shows that your installation appears to be working correctly.
+...
+````
+###### 更新 Docker CE 版本
+重复之前的安装步骤,选择新的版本进行安装
+````
+// 更新前
+[root@localhost docker_rpm]# docker -v
+Docker version 18.06.0-ce, build 0ffa825
+// 执行更新语句
+sudo yum install docker-ce-18.06.1.ce-3.el7
+// 更新后
+[root@localhost docker_rpm]# docker -v
+Docker version 18.06.1-ce, build 0ffa825
+````
+**NOTE : 只能更新新的版本,新版本无法使用该语句回退到旧版本**
+##### 方式2 下载 RPM 包进行安装
+1. 下载 RPM 包:\
+RPM 包下载地址:`https://download.docker.com/linux/centos/7/x86_64/stable/Packages/`
+2. 安装 docker ce
+````
+sudo yum install /tmp/docker_rpm/docker-ce-18.03.1.ce-1.el7.centos.x86_64.rpm
+````
+3. 启动 docker
+````
+sudo systemctl start docker
+````
+4. 验证是否正确安装
+````
+sudo docker run hello-world
+````
+###### 更新 Docker CE 版本
+将`yum install`改为`yum upgrade`,并指定更新版本即可:
+````
+sudo yum upgrade /tmp/docker_rpm/docker-ce-18.03.1.ce-1.el7.centos.x86_64.rpm
+````
+##### 方式3 使用便捷脚本进行安装
+不推荐使用脚本的方式在**生产环境**上安装docker,可能会有一些潜在的风险.
+````
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+````
+同样需要手动启动 docker.
+
+**NOTE : docker 默认在 root 用户下才能使用,如果其他用户(non-root user)需要使用 docker,需要将另外的用户加入到 docker 用户组中.**
+````
+sudo usermod -aG docker your-user
+````
+例如,使用 root 创建一个用户名为 getthrough2 的用户,并尝试使用docker:
+````
+// 创建用户
+useradd -d /usr/getthrough2 -m getthrough2
+// 指定密码
+passwd getthrough2
+// 切换用户
+su - getthrough2
+// 尝试查看docker容器
+[getthrough2@localhost ~]$ docker ps
+Got permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: Get
+http://%2Fvar%2Frun%2Fdocker.sock/v1.39/containers/json: dial unix /var/run/docker.sock: connect: permission denied
+````
+提示拒绝链接.需要将 getthrough2 用户加入 docker 用户组:
+````
+[root@localhost getthrough2]# sudo usermod -aG docker getthrough2
+[root@localhost getthrough2]# su getthrough2
+[getthrough2@localhost ~]$ docker ps
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+[getthrough2@localhost ~]$ docker images
+REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+````
+
+## Install Docker for Ubuntu
 在 Ubuntu 上安装 Docker，系统需要是以下几种的 64 位版本：
 * Bionic 18.04 (LTS)
 * Xenial 16.04 (LTS)
