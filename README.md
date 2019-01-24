@@ -194,7 +194,7 @@ REPOSITORY          TAG                 IMAGE ID            CREATED             
 * 一些用户会下载 deb 包进行手动安装和升级，这在系统无法联网的情况下非常有用。
 * 在测试和开发环境中，一些用户使用自动化的脚本进行安装。
 
-以上几种方式在下面给出的链接中都有详细描述，这里记录一种简便的方式进行安装(前提网络正常)：\
+以上几种方式在下面给出的链接中都有详细描述，这里使用便捷脚本的方式进行安装：\
 通过`wget -qO- https://get.docker.com/ | sh`\
 或者`curl -sSL https://get.docker.com/ | sh`命令可以直接进行安装,\
 设置开机启动：\
@@ -207,16 +207,47 @@ references:\
 https://docs.docker.com/install/linux/docker-ce/ubuntu/
 
 ## 拉取镜像并使用
+各种镜像的使用可以在`https://github.com/docker-library/docs`中找到操作文档。\
+MySQL 使用演示：
+### 拉取 MySQL 镜像
+`docker pull mysql:5.7`
+### 单独启动 MySQL 服务器
+````
+[root@localhost ~]# docker run --name my_mysql -e MYSQL_ROOT_PASSWORD=123456 -d mysql:5.7
+// 如果有如下报错
+WARNING: IPv4 forwarding is disabled. Networking will not work.
+// 在 CentOS 7 中，需要在 /etc/sysctl.conf 加下面这句
+net.ipv4.ip_forward=1
+// 然后重启网络
+systemctl restart network
+````
+### 作为客户端连接到运行的 MySQL 容器
+````
+[root@localhost ~]# docker run -it --link my_mysql:mysql --rm mysql:5.7 sh -c 'exec mysql -h"$MYSQL_PORT_3306_TCP_ADDR" -P"$MYSQL_PORT_3306_TCP_PORT" -uroot -p"$MYSQL_ENV_MYSQL_ROOT_PASSWORD"'
+````
+### 在 docker 应用程序中连接 MySQL 容器
+````
+
+````
+
+
+
+
+
+
+
+1. `docker search ubuntu`: 搜索镜像相关版本信息
 1. `docker pull ubuntu:latest`: 从 hub.docker.com 上拉取`ubuntu`最新版本镜像;
 2. `docker image ls`: 显示镜像列表;
-3. `docker run -ti unbuntu:latest /bin/bash`: 运行`ubuntu`进行镜像并进入该容器中（加上`-d`参数则不会进入容器而是后台运行）;
+3. `docker run -ti ubuntu:latest /bin/bash`: 运行`ubuntu`进行镜像并进入该容器中（加上`-d`参数则不会进入容器而是后台运行）;\
+或者使用`docker exec -it ubuntu:latest bash` 直接进入`ubuntu`的 shell。
 4. `docker attach`: 进入一个正在运行的容器中，如 `docker attach 8aae6257d7c0`, 后面的一串字符是该容器的`id`（`CONTAINER ID`），或者换成容器的名称（`NAMES`）也能进入。
 5. `CTRL+P+Q`: 退出容器,容器仍然运行; `CTRL+D`: 退出并关闭容器，未保存的操作将被抛弃。
 
 references:\
-https://www.youtube.com/watch?v=UV3cw4QLJLs 视频教程
+https://www.youtube.com/watch?v=UV3cw4QLJLs 
 
-## 保存镜像和加载镜像
+## 操作镜像
 在没有联网的环境下无法从外网环境拉取镜像,可以通过提前将镜像保存后再进行加载的方式使用.
 ### 保存镜像文件
 查看已有的 docker 镜像:
@@ -241,6 +272,35 @@ Loaded image: hello-world:latest
 REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
 hello-world         latest              fce289e99eb9        2 weeks ago         1.84kB
 ````
+### 删除镜像文件
+````
+// 显示镜像
+[root@VM_0_2_centos ~]# docker images
+REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+tomcat              latest              7ee26c09afb3        33 hours ago        462MB
+mysql               latest              71b5c7e10f9b        36 hours ago        477MB
+hello-world         latest              fce289e99eb9        3 weeks ago         1.84kB
+// 删除 hello-world 镜像
+[root@VM_0_2_centos ~]# docker image rm hello-world:latest 
+// 提示还有容器在使用这个镜像（使用 -f 参数可强制删除）
+Error response from daemon: conflict: unable to remove repository reference "hello-world:latest" (must force) - container 2ce767d723d6 is using its referenced image fce289e99eb9
+// 查看所有容器
+[root@VM_0_2_centos ~]# docker container ls -a
+CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS                        PORTS                 NAMES
+2ce767d723d6        hello-world         "-d"                     4 minutes ago       Created                                             practical_lalande
+cdfe10b4ce82        hello-world         "/hello"                 19 minutes ago      Exited (0) 19 minutes ago                           unruffled_hypatia
+// 先删除这两个容器
+[root@VM_0_2_centos ~]# docker container rm 2ce767d723d6 cdfe10b4ce82
+2ce767d723d6
+cdfe10b4ce82
+// 再删除 hello-world 镜像
+[root@VM_0_2_centos ~]# docker rmi hello-world:latest   // 等同于 docker image rm hello-world:latest
+Untagged: hello-world:latest
+Untagged: hello-world@sha256:2557e3c07ed1e38f26e389462d03ed943586f744621577a99efb77324b0fe535
+Deleted: sha256:fce289e99eb9bca977dae136fbe2a82b6b7d4c372474c9235adc1741675f587e
+Deleted: sha256:af0b15c8625bb1938f1d7b17081031f649fd14e6b233688eea3c5483994a66a3
+````
+
 ## Dockerfile
 #### 什么是 Dockerfile?
 `Dockerfile`定义了容器的环境里所有的动作（即容器要如何运作）。对网络接口和磁盘驱动的访问需要在容器中进行虚拟化，因此需要将容器中的端口映射到外部实际的端口，并且具体说明要复制外部的那些文件到容器中环境。
